@@ -14,11 +14,14 @@ app.use(express.json());
 
 const coachesRouter = require('../routes/coaches');
 const creditPackageRouter = require('../routes/creditPackage');
-
-
+const usersRouter = require('../routes/users');
+//M1
 app.use('/api/coaches', coachesRouter);
 
 app.use('/api/credit-package', creditPackageRouter);
+//M2
+app.use('/api/users', usersRouter);
+
 app.get('/healthcheck', async (req, res) => {
   try {
     await pool.query('SELECT 1');
