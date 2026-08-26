@@ -4,7 +4,7 @@
   "main": "bin/www.js",
   "scripts": {
     "dev": "nodemon ./bin/www.js",
-    "main": "index.js"
+    "start": "node ./bin/www.js"
   },
   "keywords": [],
   "author": "",

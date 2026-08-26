@@ -2,7 +2,6 @@ volumes:
   pgData:
 
 services:
-  # 健身房前端（成品，不要改它 — 它是你的驗收機）
   frontend:
     build:
       context: ./frontend
@@ -12,7 +11,6 @@ services:
     ports:
       - "3000:80"
 
-  # API 文件（Swagger UI，瀏覽 + Try it out 試打你的後端）
   swagger:
     image: swaggerapi/swagger-ui:v5.17.14
     environment:
@@ -22,7 +20,6 @@ services:
     ports:
       - "8081:8080"
 
-  # PostgreSQL（空的資料庫，等你的後端來建表）
   postgres:
     image: postgres:16.4-alpine3.20
     environment:
@@ -38,36 +35,28 @@ services:
       interval: 10s
       timeout: 3s
       retries: 3
-  
-  # ============================================================
-  # W10 容器化挑戰：將專案內既有的 backend 加入 Docker Compose
-  # 規則（GitHub Actions 的壓軸驗收按這個來）：
-  #   - 服務名稱必須叫 backend
-  #   - 對外要開 8080（"8080:你的PORT"）
-  # 提示：
-  #   - 在 backend/ 裡寫 Dockerfile
-  #   - 在 backend/ 加上 .dockerignore，至少排除 node_modules 與 .env
-  #   - build context 建議用 ./backend
-  #   - 容器裡連資料庫，DB_HOST 不再是 localhost，而是 postgres
-  #   - 要有 healthcheck（打你的 GET /healthcheck）
-  #   - depends_on postgres 的 healthy
-  # ============================================================
-  # backend:
-  #   build:
-  #     context: ____
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - "____:____"
-  #   environment:     # 需要哪些變數？可根據 .env.example 對照補齊
-  #     - PORT=____
-  #     - DB_HOST=____
-  #     # …其餘 DB_ 連線資訊與 JWT 設定自行補上
-  #   depends_on:
-  #     postgres:
-  #       condition: ____
-  #   healthcheck:
-  #     # 把網址補成你的 PORT 與 /healthcheck 路徑
-  #     test: ["CMD-SHELL", "node -e \"fetch('http://localhost:____/____').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""]
-  #     interval: 10s
-  #     timeout: 3s
-  #     retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USERNAME=student
+      - DB_PASSWORD=student666
+      - DB_DATABASE=fitness
+      - JWT_SECRET=1234
+      - JWT_EXPIRES_DAY=30d
+      
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://localhost:8080/healthcheck').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""]
+      interval: 10s
+      timeout: 3s
+      retries: 5
