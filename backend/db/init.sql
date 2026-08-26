@@ -1,16 +1,19 @@
+
 CREATE TABLE IF NOT EXISTS skills (
   id UUID PRIMARY KEY,
   name VARCHAR(100) NOT NULL UNIQUE,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+
 CREATE TABLE IF NOT EXISTS credit_packages (
   id UUID PRIMARY KEY,
-  name VARCHAR(100) NOT NULL,
+  name VARCHAR(100) NOT NULL UNIQUE,
   credit_amount INTEGER NOT NULL,
   price NUMERIC(10, 2) NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
 
 CREATE TABLE IF NOT EXISTS users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -20,6 +23,7 @@ CREATE TABLE IF NOT EXISTS users (
   role VARCHAR(20) NOT NULL DEFAULT 'USER',
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
 
 CREATE TABLE IF NOT EXISTS coaches (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -31,25 +35,44 @@ CREATE TABLE IF NOT EXISTS coaches (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+
 CREATE TABLE IF NOT EXISTS coach_skills (
-  coach_id UUID NOT NULL REFERENCES coaches(id) ON DELETE CASCADE,
-  skill_id UUID NOT NULL REFERENCES skills(id) ON DELETE CASCADE,
+  coach_id UUID NOT NULL
+    REFERENCES coaches(id) ON DELETE CASCADE,
+
+  skill_id UUID NOT NULL
+    REFERENCES skills(id) ON DELETE CASCADE,
+
   PRIMARY KEY (coach_id, skill_id)
 );
 
+
 CREATE TABLE IF NOT EXISTS courses (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  skill_id UUID NOT NULL REFERENCES skills(id),
+
+  coach_id UUID NOT NULL
+    REFERENCES coaches(id) ON DELETE CASCADE,
+
+  skill_id UUID NOT NULL
+    REFERENCES skills(id),
+
   name VARCHAR(255) NOT NULL,
+
   description TEXT NOT NULL,
+
   start_at TIMESTAMPTZ NOT NULL,
+
   end_at TIMESTAMPTZ NOT NULL,
+
   max_participants INTEGER NOT NULL,
+
   meeting_url TEXT NOT NULL,
+
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
 
 CREATE TABLE IF NOT EXISTS credit_purchases (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -83,3 +106,4 @@ CREATE TABLE IF NOT EXISTS course_bookings (
 
   cancelled_at TIMESTAMPTZ
 );
+
